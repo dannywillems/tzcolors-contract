@@ -1,10 +1,9 @@
 import smartpy as sp
 
 class FA2ErrorMessage:
-    PREFIX = "FA2_"
-    TOKEN_UNDEFINED = "{}TOKEN_UNDEFINED".format(PREFIX)
-    INSUFFICIENT_BALANCE = "{}INSUFFICIENT_BALANCE".format(PREFIX)
-    NOT_OWNER = "{}NOT_OWNER".format(PREFIX)
+    TOKEN_UNDEFINED = "FA2_TOKEN_UNDEFINED"
+    INSUFFICIENT_BALANCE = "FA2_INSUFFICIENT_BALANCE"
+    NOT_OWNER = "FA2_NOT_OWNER"
 
 class LedgerKey:
     def get_type():
@@ -14,6 +13,9 @@ class LedgerKey:
         ).layout(("owner", "token_id"))
 
     def make(owner, token_id):
+        """
+        Create a new LedgerKey object for the NFT [token_id] owned by [owner]
+        """
         return sp.set_type_expr(
             sp.record(
                 owner = owner,
@@ -101,16 +103,15 @@ class BatchInitialAuction:
 
 
 class AuctionErrorMessage:
-    PREFIX = "AUC_"
-    ID_ALREADY_IN_USE = "{}ID_ALREADY_IN_USE".format(PREFIX)
-    SELLER_CANNOT_BID = "{}SELLER_CANNOT_BID".format(PREFIX)
-    BID_AMOUNT_TOO_LOW = "{}BID_AMOUNT_TOO_LOW".format(PREFIX)
-    AUCTION_IS_OVER = "{}AUCTION_IS_OVER".format(PREFIX)
-    AUCTION_IS_ONGOING = "{}AUCTION_IS_ONGOING".format(PREFIX)
-    SENDER_NOT_BIDDER = "{}SENDER_NOT_BIDDER".format(PREFIX)
-    TOKEN_AMOUNT_TOO_LOW = "{}TOKEN_AMOUNT_TOO_LOW".format(PREFIX)
-    END_DATE_TOO_SOON = "{}END_DATE_TOO_SOON".format(PREFIX)
-    END_DATE_TOO_LATE = "{}END_DATE_TOO_LATE".format(PREFIX)
+    ID_ALREADY_IN_USE = "AUC_ID_ALREADY_IN_USE"
+    SELLER_CANNOT_BID = "AUC_SELLER_CANNOT_BID"
+    BID_AMOUNT_TOO_LOW = "AUC_BID_AMOUNT_TOO_LOW"
+    AUCTION_IS_OVER = "AUC_AUCTION_IS_OVER"
+    AUCTION_IS_ONGOING = "AUC_AUCTION_IS_ONGOING"
+    SENDER_NOT_BIDDER = "AUC_SENDER_NOT_BIDDER"
+    TOKEN_AMOUNT_TOO_LOW = "AUC_TOKEN_AMOUNT_TOO_LOW"
+    END_DATE_TOO_SOON = "AUC_END_DATE_TOO_SOON"
+    END_DATE_TOO_LATE = "AUC_END_DATE_TOO_LATE"
 
 class Auction():
     def get_type():
@@ -171,12 +172,18 @@ class BaDaaSBeerFA2(sp.Contract):
                 tvalue=sp.TNat
             ),
             token_metadata = sp.bytes('0x697066733a2f2f516d5477794e383547667a6942354247684632454c6f67654a527436437765765a5937323962616851714b486944'),
-            total_supply=sp.big_map(tkey=sp.TNat, tvalue = sp.TNat),
+            total_supply = sp.big_map(
+                tkey=sp.TNat,
+                tvalue = sp.TNat
+            ),
             allowances = sp.big_map(tkey=AllowanceKey.get_type(), tvalue=sp.TBool)
         )
 
     @sp.entry_point
     def initial_auction(self, batch_initial_auction):
+        """
+        Initialize a batch of auctions
+        """
         sp.set_type_expr(
             batch_initial_auction,
             BatchInitialAuction.get_type()
@@ -245,6 +252,9 @@ class BaDaaSBeerFA2(sp.Contract):
 
     @sp.entry_point
     def transfer(self, batch_transfers):
+        """
+        Batch transfers
+        """
         sp.set_type(batch_transfers, BatchTransfer.get_type())
         sp.for transfer in batch_transfers:
            sp.for tx in transfer.txs:
